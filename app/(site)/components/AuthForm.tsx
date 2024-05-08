@@ -19,7 +19,7 @@ export default function AuthForm() {
     } else {
       setVariant("LOGIN");
     }
-  }, []);
+  }, [variant]);
 
   const {
     register,
