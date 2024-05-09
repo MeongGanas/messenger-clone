@@ -6,6 +6,9 @@ import { useCallback, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import AuthSocialButton from "./AuthSocialButton";
 import { BsGithub, BsGoogle } from "react-icons/bs";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { signIn } from "next-auth/react";
 
 type Variant = "LOGIN" | "REGISTER";
 
@@ -37,18 +40,46 @@ export default function AuthForm() {
     setIsLoading(true);
 
     if (variant === "REGISTER") {
-      // axios register
+      axios
+        .post("/api/register", data)
+        .catch(() => toast.error("Something went wrong."))
+        .finally(() => setIsLoading(false));
     }
 
     if (variant === "LOGIN") {
-      // nextauth signin
+      signIn("credentials", {
+        ...data,
+        redirect: false,
+      })
+        .then((callback) => {
+          if (callback?.error) {
+            toast.error("Invalid credentials.");
+          }
+
+          if (callback?.ok) {
+            toast.success("Logged In!");
+          }
+        })
+        .finally(() => setIsLoading(false));
     }
   };
 
   const socialAction = (action: string) => {
     setIsLoading(true);
 
-    // nextauth social signin
+    signIn(action, {
+      redirect: false,
+    })
+      .then((callback) => {
+        if (callback?.error) {
+          toast.error("Invalid Credentials");
+        }
+
+        if (callback?.ok && !callback.error) {
+          toast.success("Logged In!");
+        }
+      })
+      .finally(() => setIsLoading(false));
   };
 
   return (
@@ -62,6 +93,7 @@ export default function AuthForm() {
             id="email"
             label="Email"
             type="email"
+            disabled={isLoading}
             register={register}
             errors={errors}
           />
@@ -69,6 +101,7 @@ export default function AuthForm() {
             id="password"
             label="Password"
             type="password"
+            disabled={isLoading}
             register={register}
             errors={errors}
           />
