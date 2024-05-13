@@ -5,6 +5,7 @@ import Header from "./components/Header";
 import Body from "./components/Body";
 import Form from "./components/Form";
 import { FullMessageType } from "@/app/types";
+import { Suspense } from "react";
 
 interface IParams {
   conversationId: string;
